@@ -1,0 +1,50 @@
+{
+  "Biology + Mathematics": [
+    "Medical",
+    "Life Sciences",
+    "Biotechnology",
+    "Research"
+  ],
+  "Biology (No Mathematics)": [
+    "Medical",
+    "Allied Health Sciences",
+    "Life Sciences"
+  ],
+  "Mathematics + Computer Science": [
+    "Engineering",
+    "Computer Science",
+    "Data & IT"
+  ],
+  "Mathematics + Other Science": [
+    "Engineering",
+    "Physical Sciences",
+    "Research"
+  ],
+  "Commerce with Mathematics": [
+    "Accounting",
+    "Finance",
+    "Management",
+    "Analytics"
+  ],
+  "Commerce without Mathematics": [
+    "Business",
+    "Management",
+    "Commerce"
+  ],
+  "Humanities": [
+    "Humanities",
+    "Social Sciences",
+    "Law",
+    "Education"
+  ],
+  "Arts with Mathematics": [
+    "Economics",
+    "Statistics",
+    "Analytics"
+  ],
+  "Arts with Design / Media": [
+    "Design",
+    "Media",
+    "Fine Arts"
+  ]
+}

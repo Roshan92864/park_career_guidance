@@ -1,0 +1,17 @@
+{
+  "Science": [
+    "Biology + Mathematics",
+    "Biology (No Mathematics)",
+    "Mathematics + Computer Science",
+    "Mathematics + Other Science"
+  ],
+  "Commerce": [
+    "Commerce with Mathematics",
+    "Commerce without Mathematics"
+  ],
+  "Arts": [
+    "Humanities",
+    "Arts with Mathematics",
+    "Arts with Design / Media"
+  ]
+}

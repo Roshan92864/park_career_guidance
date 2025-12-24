@@ -1,0 +1,5 @@
+{
+  "CBSE": ["Science", "Commerce", "Arts"],
+  "ICSE": ["Science", "Commerce", "Arts"],
+  "State Board": ["Science", "Commerce", "Arts"]
+}
