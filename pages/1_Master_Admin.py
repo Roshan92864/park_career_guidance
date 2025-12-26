@@ -272,3 +272,4 @@ elif section == "📏 Eligibility Rules":
         st.rerun()
 
     st.markdown("</div>", unsafe_allow_html=True)
+
