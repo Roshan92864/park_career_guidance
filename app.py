@@ -1,7 +1,7 @@
-#app.py
-
+#app.py 
 import streamlit as st
 import pandas as pd
+from fpdf import FPDF
 from engine.recommendation_engine import (
     get_streams_by_board,
     get_subject_combinations,
@@ -9,176 +9,284 @@ from engine.recommendation_engine import (
     recommend_courses,
     courses as COURSE_DATA
 )
-from fpdf import FPDF
 
-# ---------------- PAGE CONFIG ----------------
-st.set_page_config(page_title="Career Guidance System", layout="centered")
+# ======================================================
+# PAGE CONFIG
+# ======================================================
+st.set_page_config(
+    page_title="Career Guidance System",
+    layout="wide",
+    initial_sidebar_state="collapsed"
+)
 
+# ======================================================
+# STYLES (TECH + PROFESSIONAL)
+# ======================================================
 st.markdown("""
 <style>
-.title { font-size:32px; font-weight:bold; color:#1F618D; text-align:center; }
-.section { font-size:22px; font-weight:bold; margin-top:25px; }
+body { background-color:#F6F8FB; }
+
+.hero {
+    background: linear-gradient(135deg, #0F2027, #203A43, #2C5364);
+    padding: 42px;
+    border-radius: 20px;
+    color: white;
+    text-align: center;
+    margin-bottom: 34px;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.25);
+}
+
+.hero h1 {
+    font-size: 44px;
+    font-weight: 900;
+}
+
+.hero p {
+    font-size: 15px;
+    opacity: 0.9;
+}
+
+.card {
+    background: #FFFFFF;
+    padding: 28px;
+    border-radius: 18px;
+    box-shadow: 0 10px 26px rgba(0,0,0,0.08);
+    margin-bottom: 30px;
+}
+
+.section-title {
+    font-size: 22px;
+    font-weight: 800;
+    color: #0B5ED7;
+    margin-bottom: 16px;
+}
+
+.kpi-card {
+    background: linear-gradient(135deg, #FFFFFF, #F1F4F9);
+    padding: 24px;
+    border-radius: 16px;
+    text-align: center;
+    box-shadow: inset 0 0 0 1px #E0E6ED;
+}
+
+.kpi-value {
+    font-size: 30px;
+    font-weight: 900;
+    color: #0B5ED7;
+}
+
+.kpi-label {
+    font-size: 12px;
+    color: #555;
+    letter-spacing: 0.6px;
+}
 </style>
 """, unsafe_allow_html=True)
 
-st.markdown("<div class='title'>Career Recommendation System</div>", unsafe_allow_html=True)
+# ======================================================
+# HERO
+# ======================================================
+st.markdown("""
+<div class="hero">
+    <h1>🎓 Career Recommendation System</h1>
+    <p>Professional, data-driven academic guidance after 12th</p>
+</div>
+""", unsafe_allow_html=True)
 
-# ---------------- COURSE DESCRIPTION MAP ----------------
-COURSE_DETAILS = {
-    "MBBS": "Professional medical degree to become a licensed doctor.",
-    "BDS": "Dental science program focused on oral health and dentistry.",
-    "BAMS": "Medical degree based on Ayurvedic treatment and traditional medicine.",
-    "BHMS": "Medical program focused on homeopathic systems of treatment.",
-    "B.Sc Nursing": "Healthcare program focused on patient care and clinical practice.",
-    "B.Pharm": "Pharmacy degree dealing with medicines and drug development.",
+# ======================================================
+# STUDENT PROFILE
+# ======================================================
+st.markdown("<div class='card'>", unsafe_allow_html=True)
+st.markdown("<div class='section-title'>👤 Student Profile</div>", unsafe_allow_html=True)
 
-    "B.Sc Biotechnology": "Study of biological processes used in healthcare, agriculture, and research.",
-    "B.Sc Microbiology": "Focuses on microorganisms and their role in health, environment, and industry.",
-    "B.Sc Research": "Research-oriented science program preparing for higher studies and innovation.",
+c1, c2 = st.columns(2)
+with c1:
+    name = st.text_input("Student Name", placeholder="Enter full name")
+with c2:
+    board = st.selectbox("Education Board", ["CBSE", "ICSE", "State Board"])
 
-    "B.Tech": "Engineering degree covering applied technology and problem-solving skills.",
-    "BE": "Engineering program focused on core technical and practical skills.",
+st.markdown("</div>", unsafe_allow_html=True)
 
-    "BCA": "Computer applications program focused on software development and IT systems.",
-    "B.Sc Computer Science": "Core computer science degree covering programming and system design.",
-    "Data Science": "Focuses on data analysis, statistics, and machine learning.",
-    "AI & ML": "Specialization in artificial intelligence and machine learning technologies.",
-    "Cyber Security": "Focuses on protecting systems, networks, and digital information.",
-
-    "B.Com": "Commerce degree covering accounting, finance, and business fundamentals.",
-    "CA": "Professional course in accounting, taxation, and auditing.",
-    "CMA": "Cost and management accounting program for financial decision-making.",
-    "BBA": "Business administration program focusing on management and leadership skills.",
-    "BBM": "Business management degree with practical business exposure.",
-    "BMS": "Management program focused on organizational and business operations.",
-
-    "BA Economics": "Study of economic systems, markets, and financial policies.",
-    "B.Sc Statistics": "Program focused on data analysis, probability, and statistical methods.",
-
-    "Fashion Design": "Creative program focused on clothing, textiles, and fashion industry.",
-    "Graphic Design": "Design program focusing on visual communication and digital creativity.",
-    "Journalism": "Program focused on media, reporting, and communication skills.",
-    "Mass Communication": "Study of media platforms, advertising, and public communication.",
-    "BFA": "Fine arts program focusing on creative and visual art forms."
-}
-
-def get_course_detail(course_name):
-    return COURSE_DETAILS.get(
-        course_name,
-        "Undergraduate program offering strong career opportunities in this field."
-    )
-
-# ---------------- STUDENT NAME ----------------
-name = st.text_input("Enter your name")
 if not name:
+    st.info("Please enter student name to proceed.")
     st.stop()
 
-# ---------------- EDUCATION BOARD ----------------
-board = st.selectbox("Select Education Board", ["CBSE", "ICSE", "State Board"])
+# ======================================================
+# ACADEMIC BACKGROUND
+# ======================================================
+st.markdown("<div class='card'>", unsafe_allow_html=True)
+st.markdown("<div class='section-title'>📘 Academic Background</div>", unsafe_allow_html=True)
 
-# ---------------- STREAM ----------------
-stream = st.selectbox("Select Stream", get_streams_by_board(board))
+c1, c2 = st.columns(2)
+with c1:
+    stream = st.selectbox("Stream", get_streams_by_board(board))
+with c2:
+    subject_combo = st.selectbox("Subject Combination", get_subject_combinations(stream))
 
-# ---------------- SUBJECT COMBINATION ----------------
-st.markdown("<div class='section'>Select Subject Combination</div>", unsafe_allow_html=True)
-subject_combo = st.radio(
-    "Available subject combinations",
-    get_subject_combinations(stream)
-)
+st.markdown("</div>", unsafe_allow_html=True)
 
-# ---------------- AVAILABLE COURSES ----------------
-st.markdown("<div class='section'>Available Courses</div>", unsafe_allow_html=True)
+# ======================================================
+# AVAILABLE COURSES
+# ======================================================
+st.markdown("<div class='card'>", unsafe_allow_html=True)
+st.markdown("<div class='section-title'>📚 Eligible Course Landscape</div>", unsafe_allow_html=True)
 
 categories = get_course_categories(subject_combo)
-rows = []
+available_rows = [
+    {"Category": cat, "Course Name": c}
+    for cat in categories
+    for c in COURSE_DATA.get(cat, [])
+]
 
-for category in categories:
-    for course in COURSE_DATA.get(category, []):
-        rows.append({
-            "Course Category": category,
-            "Course Name": course
-        })
+st.dataframe(
+    pd.DataFrame(available_rows),
+    hide_index=True,
+    width="stretch"
+)
+st.markdown("</div>", unsafe_allow_html=True)
 
-st.table(pd.DataFrame(rows))
+# ======================================================
+# EXPECTED MARKS
+# ======================================================
+st.markdown("<div class='card'>", unsafe_allow_html=True)
+st.markdown("<div class='section-title'>📊 Expected Performance</div>", unsafe_allow_html=True)
 
-# ---------------- EXPECTED MARKS ----------------
 marks = st.slider("Expected Percentage", 40, 100, step=5)
+st.markdown("</div>", unsafe_allow_html=True)
 
-# ---------------- RESULTS ----------------
-if st.button("Show Career Results"):
+# ======================================================
+# RESULTS
+# ======================================================
+if st.button("🎯 Generate Career Insights", width="stretch"):
 
     results = recommend_courses(subject_combo, marks)
     alternate = list(set(results["safe_options"] + results["backup_options"]))
 
-    st.markdown("<div class='section'>Career Recommendation</div>", unsafe_allow_html=True)
-    st.write(
-        f"Based on your academic profile, you are well suited for "
-        f"{', '.join(categories)}-related courses."
+    # ---------------- KPI CARDS ----------------
+    st.markdown("<div class='card'>", unsafe_allow_html=True)
+    k1, k2, k3, k4 = st.columns(4)
+
+    k1.markdown(f"<div class='kpi-card'><div class='kpi-value'>{marks}%</div><div class='kpi-label'>EXPECTED SCORE</div></div>", unsafe_allow_html=True)
+    k2.markdown(f"<div class='kpi-card'><div class='kpi-value'>{stream}</div><div class='kpi-label'>STREAM</div></div>", unsafe_allow_html=True)
+    k3.markdown(f"<div class='kpi-card'><div class='kpi-value'>{len(categories)}</div><div class='kpi-label'>CAREER DOMAINS</div></div>", unsafe_allow_html=True)
+    k4.markdown(f"<div class='kpi-card'><div class='kpi-value'>{len(results['best_fit'])}</div><div class='kpi-label'>BEST FIT COURSES</div></div>", unsafe_allow_html=True)
+
+    st.markdown("</div>", unsafe_allow_html=True)
+
+    # ---------------- INSIGHT ----------------
+    st.success(
+        f"Based on your academic profile and an expected score of {marks}%, "
+        f"you are strongly aligned with career paths in {', '.join(categories)}."
     )
 
-    # ---------------- RECOMMENDED COURSES TABLE ----------------
-    st.subheader("Recommended Courses")
+    # ---------------- RESULT TABLES ----------------
+    col1, col2 = st.columns(2)
 
-    if results["best_fit"]:
-        df_rec = pd.DataFrame([
-            {
-                "S.No": i + 1,
-                "Course Name": c,
-                "Course Details": get_course_detail(c)
+    with col1:
+        st.markdown("<div class='card'>", unsafe_allow_html=True)
+        st.markdown("<div class='section-title'>✅ Recommended Courses</div>", unsafe_allow_html=True)
+
+        rec_df = pd.DataFrame({
+            "S.No": range(1, len(results["best_fit"]) + 1),
+            "Course Name": results["best_fit"]
+        })
+
+        st.dataframe(
+            rec_df,
+            hide_index=True,
+            width="stretch",
+            column_config={
+                "S.No": st.column_config.NumberColumn("S.No", width="small"),
+                "Course Name": st.column_config.TextColumn("Course Name", width="large")
             }
-            for i, c in enumerate(results["best_fit"])
-        ])
-        st.table(df_rec)
-    else:
-        st.info("No courses meet this score range.")
+        )
+        st.markdown("</div>", unsafe_allow_html=True)
 
-    # ---------------- ALTERNATE CAREER OPTIONS TABLE ----------------
-    st.subheader("Alternate Career Options")
+    with col2:
+        st.markdown("<div class='card'>", unsafe_allow_html=True)
+        st.markdown("<div class='section-title'>🔁 Alternate Career Options</div>", unsafe_allow_html=True)
 
-    if alternate:
-        df_alt = pd.DataFrame([
-            {
-                "S.No": i + 1,
-                "Course Name": c,
-                "Course Details": get_course_detail(c)
+        alt_df = pd.DataFrame({
+            "S.No": range(1, len(alternate) + 1),
+            "Course Name": alternate
+        })
+
+        st.dataframe(
+            alt_df,
+            hide_index=True,
+            width="stretch",
+            column_config={
+                "S.No": st.column_config.NumberColumn("S.No", width="small"),
+                "Course Name": st.column_config.TextColumn("Course Name", width="large")
             }
-            for i, c in enumerate(alternate)
-        ])
-        st.table(df_alt)
-    else:
-        st.info("No alternate career options available.")
+        )
+        st.markdown("</div>", unsafe_allow_html=True)
 
-    # ---------------- PDF GENERATION ----------------
-    def clean(text):
-        return text.encode("latin-1", "ignore").decode("latin-1")
+    # ======================================================
+    # PROFESSIONAL PDF REPORT (TABLE-BASED)
+    # ======================================================
+    def clean(txt):
+        return txt.encode("latin-1", "ignore").decode("latin-1")
 
     pdf = FPDF()
     pdf.add_page()
-    pdf.set_font("Arial", size=12)
-    pdf.cell(0, 10, clean("Career Recommendation Report"), ln=True, align="C")
-    pdf.ln(5)
 
-    pdf.cell(0, 8, clean(f"Name: {name}"), ln=True)
-    pdf.cell(0, 8, clean(f"Board: {board}"), ln=True)
-    pdf.cell(0, 8, clean(f"Stream: {stream}"), ln=True)
-    pdf.cell(0, 8, clean(f"Subject Combination: {subject_combo}"), ln=True)
-    pdf.cell(0, 8, clean(f"Expected Marks: {marks}%"), ln=True)
-    pdf.ln(5)
+    pdf.set_font("Arial", "B", 16)
+    pdf.cell(0, 12, clean("Career Recommendation Report"), ln=True, align="C")
+    pdf.ln(6)
 
-    pdf.cell(0, 8, clean("Recommended Courses"), ln=True)
-    for c in results["best_fit"]:
-        pdf.cell(0, 8, clean(f"- {c}: {get_course_detail(c)}"), ln=True)
+    pdf.set_font("Arial", "B", 12)
+    pdf.cell(0, 10, clean("Student Profile"), ln=True)
 
-    pdf.ln(3)
-    pdf.cell(0, 8, clean("Alternate Career Options"), ln=True)
-    for c in alternate:
-        pdf.cell(0, 8, clean(f"- {c}: {get_course_detail(c)}"), ln=True)
+    pdf.set_font("Arial", size=11)
+    profile = [
+        ("Student Name", name),
+        ("Board", board),
+        ("Stream", stream),
+        ("Subject Combination", subject_combo),
+        ("Expected Marks", f"{marks}%")
+    ]
+
+    for label, value in profile:
+        pdf.cell(60, 8, clean(label), border=1)
+        pdf.cell(120, 8, clean(value), border=1, ln=True)
+
+    pdf.ln(6)
+
+    pdf.set_font("Arial", "B", 12)
+    pdf.cell(0, 10, clean("Recommended Courses"), ln=True)
+
+    pdf.set_font("Arial", "B", 11)
+    pdf.cell(20, 8, "S.No", border=1)
+    pdf.cell(160, 8, "Course Name", border=1, ln=True)
+
+    pdf.set_font("Arial", size=11)
+    for i, c in enumerate(results["best_fit"], start=1):
+        pdf.cell(20, 8, str(i), border=1)
+        pdf.cell(160, 8, clean(c), border=1, ln=True)
+
+    pdf.ln(6)
+
+    pdf.set_font("Arial", "B", 12)
+    pdf.cell(0, 10, clean("Alternate Career Options"), ln=True)
+
+    pdf.set_font("Arial", "B", 11)
+    pdf.cell(20, 8, "S.No", border=1)
+    pdf.cell(160, 8, "Course Name", border=1, ln=True)
+
+    pdf.set_font("Arial", size=11)
+    if alternate:
+        for i, c in enumerate(alternate, start=1):
+            pdf.cell(20, 8, str(i), border=1)
+            pdf.cell(160, 8, clean(c), border=1, ln=True)
+    else:
+        pdf.cell(180, 8, clean("No alternate options available"), border=1, ln=True)
 
     file_name = f"{name}_Career_Recommendation_Report.pdf"
     pdf.output(file_name)
 
     st.download_button(
-        "Download Career Recommendation Report (PDF)",
+        "📄 Download Professional Career Report (PDF)",
         data=open(file_name, "rb").read(),
         file_name=file_name,
         mime="application/pdf"
