@@ -8,18 +8,14 @@ course_categories = load_json("course_categories.json")
 courses = load_json("courses.json")
 eligibility = load_json("eligibility_rules.json")
 
-
 def get_streams_by_board(board):
     return boards.get(board, [])
-
 
 def get_subject_combinations(stream):
     return streams.get(stream, [])
 
-
 def get_course_categories(subject_combo):
     return course_categories.get(subject_combo, [])
-
 
 def recommend_courses(subject_combo, marks):
     result = {
@@ -31,7 +27,6 @@ def recommend_courses(subject_combo, marks):
     for category in course_categories.get(subject_combo, []):
         for course in courses.get(category, []):
             min_marks = eligibility.get(course, 50)
-
             if marks >= min_marks + 10:
                 result["best_fit"].append(course)
             elif marks >= min_marks:
